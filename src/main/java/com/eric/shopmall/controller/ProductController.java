@@ -24,7 +24,7 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-  @CrossOrigin(origins = "http://localhost:4200")
+  @CrossOrigin(origins = "https://eric8409.github.io")
   @GetMapping("/products")
   public ResponseEntity<Page<Product>> getProducts(
           //查詢條件 Filtering
@@ -69,7 +69,7 @@ public class ProductController {
     }
 
 
-   @CrossOrigin(origins = "http://localhost:4200")
+   @CrossOrigin(origins = "https://eric8409.github.io")
    @GetMapping("/products/{productId}")
    public ResponseEntity<Product> getProduct(@PathVariable Integer productId) {
 
@@ -82,7 +82,7 @@ public class ProductController {
 
    }
 
-   @CrossOrigin(origins = "http://localhost:4200")
+   @CrossOrigin(origins = "https://eric8409.github.io")
    @PostMapping("/products")
    public ResponseEntity<Product> createProduct(@RequestBody @Valid ProductRequest productRequest) {
 
@@ -93,7 +93,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.CREATED).body(product);
    }
 
-   @CrossOrigin(origins = "http://localhost:4200")
+   @CrossOrigin(origins = "https://eric8409.github.io")
    @PutMapping("/products/{productId}")
    public ResponseEntity<Product> updateProduct( @PathVariable Integer productId,
                                                  @RequestBody @Valid ProductRequest productRequest) {
@@ -114,7 +114,7 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
    }
 
-   @CrossOrigin(origins = "http://localhost:4200")
+   @CrossOrigin(origins = "https://eric8409.github.io")
    @DeleteMapping("/products/{productId}")
    public  ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
 
