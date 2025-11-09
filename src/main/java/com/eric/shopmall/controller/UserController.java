@@ -2,10 +2,8 @@ package com.eric.shopmall.controller;
 
 import com.eric.shopmall.dto.UserLoginRequest;
 import com.eric.shopmall.dto.UserRegisterRequest;
-import com.eric.shopmall.model.Product;
 import com.eric.shopmall.model.User;
 import com.eric.shopmall.service.UserService;
-import com.eric.shopmall.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
