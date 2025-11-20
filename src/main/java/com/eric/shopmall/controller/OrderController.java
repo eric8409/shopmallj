@@ -24,8 +24,8 @@ public class OrderController {
     private OrderService orderService;
 
 
-//    @CrossOrigin(origins = {"https://eric8409.github.io"})
-    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://eric8409.github.io"})
+//    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
     @GetMapping("/users/{userId}/orders")
     public ResponseEntity<Page<Order>> getOrders(
 
@@ -58,8 +58,8 @@ public class OrderController {
 
     }
 
-//    @CrossOrigin(origins = {"https://eric8409.github.io"})
-    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
+    @CrossOrigin(origins = {"https://eric8409.github.io"})
+//    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
     @PostMapping("/users/{userId}/orders")
     public ResponseEntity<?> createOrder(@PathVariable Integer userId,
                                          @RequestBody @Valid CreateOrderRequest createOrderRequest) {
@@ -72,8 +72,8 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 
-    //   @CrossOrigin(origins = {"https://eric8409.github.io"})
-    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
+       @CrossOrigin(origins = {"https://eric8409.github.io"})
+//    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
     @GetMapping("/orders")
     public ResponseEntity<List<Totalqty>> getTotalQuantity() {
 
