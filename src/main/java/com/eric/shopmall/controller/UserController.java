@@ -20,7 +20,8 @@ public class UserController {
     }
 
 
-    @CrossOrigin(origins = {"https://eric8409.github.io"})
+//    @CrossOrigin(origins = {"https://eric8409.github.io"})
+    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
     @PostMapping("/users/register")
     public ResponseEntity<User> register(@RequestBody @Valid UserRegisterRequest userRegisterRequest) {
 
@@ -31,7 +32,8 @@ public class UserController {
      return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
-    @CrossOrigin(origins = {"https://eric8409.github.io"})
+//    @CrossOrigin(origins = {"https://eric8409.github.io"})
+    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
     @PostMapping("/users/login")
     public  ResponseEntity<User> login(@RequestBody @Valid UserLoginRequest userLoginRequest) {
 

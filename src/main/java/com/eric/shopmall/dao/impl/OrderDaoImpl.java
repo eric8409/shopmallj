@@ -5,9 +5,11 @@ import com.eric.shopmall.dto.OrderQueryParams;
 import com.eric.shopmall.model.Order;
 import com.eric.shopmall.model.OrderItem;
 import com.eric.shopmall.model.Product;
+import com.eric.shopmall.model.Totalqty;
 import com.eric.shopmall.rowmapper.OrderItemRowMapper;
 import com.eric.shopmall.rowmapper.OrderRowMapper;
 import com.eric.shopmall.rowmapper.ProductRowMapper;
+import com.eric.shopmall.rowmapper.TotalqtyRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -158,4 +160,37 @@ public class OrderDaoImpl implements OrderDao {
 
         return  sql;
     }
+
+
+    @Override
+    public List<Totalqty> getTotalQuantity() {
+
+        String sql = " SELECT DATE(o.created_date) AS purchase_date, " +
+                " SUM(oi.quantity) AS daily_quantity_sum " +
+                " FROM `order` AS o " +
+                " JOIN `order_item` AS oi ON o.order_id = oi.order_id " +
+                " GROUP BY DATE(o.created_date) " +
+                " ORDER BY purchase_date ASC ";
+
+        Map<String, Object> map = new HashMap<>();
+
+
+        List<Totalqty> totalqtyList = namedParameterJdbcTemplate.query(sql, map, new TotalqtyRowMapper());
+
+
+        return totalqtyList;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

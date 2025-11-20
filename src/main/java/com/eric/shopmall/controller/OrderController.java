@@ -3,6 +3,8 @@ package com.eric.shopmall.controller;
 import com.eric.shopmall.dto.CreateOrderRequest;
 import com.eric.shopmall.dto.OrderQueryParams;
 import com.eric.shopmall.model.Order;
+import com.eric.shopmall.model.Product;
+import com.eric.shopmall.model.Totalqty;
 import com.eric.shopmall.service.OrderService;
 import com.eric.shopmall.util.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,9 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @CrossOrigin(origins = {"https://eric8409.github.io"})
+
+//    @CrossOrigin(origins = {"https://eric8409.github.io"})
+    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
     @GetMapping("/users/{userId}/orders")
     public ResponseEntity<Page<Order>> getOrders(
 
@@ -54,7 +58,8 @@ public class OrderController {
 
     }
 
-    @CrossOrigin(origins = {"https://eric8409.github.io"})
+//    @CrossOrigin(origins = {"https://eric8409.github.io"})
+    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
     @PostMapping("/users/{userId}/orders")
     public ResponseEntity<?> createOrder(@PathVariable Integer userId,
                                          @RequestBody @Valid CreateOrderRequest createOrderRequest) {
@@ -66,6 +71,27 @@ public class OrderController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
+
+    //   @CrossOrigin(origins = {"https://eric8409.github.io"})
+    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
+    @GetMapping("/orders")
+    public ResponseEntity<List<Totalqty>> getTotalQuantity() {
+
+        List<Totalqty> totalqtyList  =  orderService.getTotalQuantity();
+
+        if(totalqtyList != null)
+            return ResponseEntity.status(HttpStatus.OK).body(totalqtyList);
+        else
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+    }
+
+
+
+
+
+
+
 
 }
 

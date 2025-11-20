@@ -6,10 +6,7 @@ import com.eric.shopmall.dao.UserDao;
 import com.eric.shopmall.dto.BuyItem;
 import com.eric.shopmall.dto.CreateOrderRequest;
 import com.eric.shopmall.dto.OrderQueryParams;
-import com.eric.shopmall.model.Order;
-import com.eric.shopmall.model.OrderItem;
-import com.eric.shopmall.model.Product;
-import com.eric.shopmall.model.User;
+import com.eric.shopmall.model.*;
 import com.eric.shopmall.service.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,4 +132,14 @@ public class OrderServiceImpl implements OrderService {
 
 
     }
+
+    @Override
+    public List<Totalqty> getTotalQuantity() {
+
+        return orderDao.getTotalQuantity();
+    }
+
+
+
+
 }

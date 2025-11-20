@@ -14,7 +14,6 @@ RUN mvn dependency:go-offline
 
 # 複製剩餘的原始碼
 COPY src ./src
-
 # 執行 Maven package 命令，產生可執行的 JAR 檔（跳過測試以節省時間）
 RUN mvn clean package -DskipTests
 
