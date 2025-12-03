@@ -84,7 +84,7 @@ public class MySecurityConfig {
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("https://eric8409.github.io");
-        configuration.addAllowedOrigin("http://localhost:4200");
+//        configuration.addAllowedOrigin("http://localhost:4200");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true); // 允許發送 Cookie
