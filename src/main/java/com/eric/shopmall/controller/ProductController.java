@@ -12,9 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 
 @Validated
@@ -24,7 +24,7 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-  @CrossOrigin(origins = {"https://eric8409.github.io"})
+//  @CrossOrigin(origins = {"https://eric8409.github.io"})
 //  @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
   @GetMapping("/products")
   public ResponseEntity<Page<Product>> getProducts(
@@ -37,7 +37,7 @@ public class ProductController {
           @RequestParam(defaultValue = "desc") String sort,
 
           //分頁 Pagination
-          @RequestParam(defaultValue = "5") @Max(1000) @Min(0) Integer limit,
+          @RequestParam(defaultValue = "1000") @Max(1000) @Min(0) Integer limit,
           @RequestParam(defaultValue = "0") @Min(0) Integer offset
 
   ) {
@@ -70,7 +70,7 @@ public class ProductController {
     }
 
 
-   @CrossOrigin(origins = {"https://eric8409.github.io"})
+//   @CrossOrigin(origins = {"https://eric8409.github.io"})
 //   @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
    @GetMapping("/products/{productId}")
    public ResponseEntity<Product> getProduct(@PathVariable Integer productId) {
@@ -84,7 +84,7 @@ public class ProductController {
 
    }
 
-   @CrossOrigin(origins = {"https://eric8409.github.io"})
+//   @CrossOrigin(origins = {"https://eric8409.github.io"})
 //   @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
    @PostMapping("/products")
    public ResponseEntity<Product> createProduct(@RequestBody @Valid ProductRequest productRequest) {
@@ -96,8 +96,8 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.CREATED).body(product);
    }
 
-   @CrossOrigin(origins = {"https://eric8409.github.io"})
-//  @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
+//   @CrossOrigin(origins = {"https://eric8409.github.io"})
+//   @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
    @PutMapping("/products/{productId}")
    public ResponseEntity<Product> updateProduct( @PathVariable Integer productId,
                                                  @RequestBody @Valid ProductRequest productRequest) {
@@ -118,7 +118,7 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
    }
 
-   @CrossOrigin(origins = {"https://eric8409.github.io"})
+//   @CrossOrigin(origins = {"https://eric8409.github.io"})
 //   @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
    @DeleteMapping("/products/{productId}")
    public  ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {

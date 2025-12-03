@@ -3,8 +3,10 @@ package com.eric.shopmall.dao.impl;
 import com.eric.shopmall.dao.UserDao;
 import com.eric.shopmall.dto.UserRegisterRequest;
 import com.eric.shopmall.model.Product;
+import com.eric.shopmall.model.Role;
 import com.eric.shopmall.model.User;
 import com.eric.shopmall.rowmapper.ProductRowMapper;
+import com.eric.shopmall.rowmapper.RoleRowMapper;
 import com.eric.shopmall.rowmapper.UserRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -23,6 +25,8 @@ public class UserDaoImpl implements UserDao {
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @Autowired
+    private RoleRowMapper roleRowMapper;
 
     @Override
     public User getUserById(Integer userId) {
@@ -81,6 +85,34 @@ public class UserDaoImpl implements UserDao {
 
         int userId = keyHolder.getKey().intValue();
         return userId;
+    }
+
+
+    @Override
+    public List<Role> getRolesByUserId(Integer userId) {
+        String sql = "SELECT role.role_id, role.role_name " +
+                     "FROM  role JOIN user_has_role " +
+                     " ON role.role_id = user_has_role.role_id " +
+                     "WHERE user_has_role.user_id = :userId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+
+        List<Role> roleList = namedParameterJdbcTemplate.query(sql, map, roleRowMapper);
+
+        return roleList;
+    }
+
+    @Override
+    public void addRoleForUserId(Integer userId, Role role) {
+
+        String sql = "INSERT INTO user_has_role(user_id, role_id) VALUES (:userId, :roleId)";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("roleId", role.getRoleId());
+
+        namedParameterJdbcTemplate.update(sql, map);
     }
 
 

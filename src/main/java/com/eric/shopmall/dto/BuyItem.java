@@ -1,6 +1,6 @@
 package com.eric.shopmall.dto;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class BuyItem {
 

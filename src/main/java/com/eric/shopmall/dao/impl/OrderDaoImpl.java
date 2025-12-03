@@ -94,11 +94,11 @@ public class OrderDaoImpl implements OrderDao {
                 "FROM order_item as oi " +
                 "LEFT JOIN  product as p " +
                 "ON oi.product_id = p.product_id " +
-                "WHERE order_item_id = :orderId";
+                // *** 修正點：將 order_item_id 改為 oi.order_id ***
+                "WHERE oi.order_id = :orderId";
 
         Map<String, Object> map = new HashMap<>();
         map.put("orderId", orderId);
-
 
         List<OrderItem> orderItemList = namedParameterJdbcTemplate.query(sql, map, new OrderItemRowMapper());
 
@@ -180,17 +180,4 @@ public class OrderDaoImpl implements OrderDao {
 
         return totalqtyList;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -1,6 +1,6 @@
 package com.eric.shopmall.dto;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public class CreateOrderRequest {

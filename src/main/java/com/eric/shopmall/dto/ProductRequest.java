@@ -2,7 +2,7 @@ package com.eric.shopmall.dto;
 
 import com.eric.shopmall.constant.ProductCategory;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 
 public class ProductRequest {

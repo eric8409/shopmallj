@@ -10,11 +10,12 @@ import com.eric.shopmall.util.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -24,8 +25,9 @@ public class OrderController {
     private OrderService orderService;
 
 
-    @CrossOrigin(origins = {"https://eric8409.github.io"})
+//    @CrossOrigin(origins = {"https://eric8409.github.io"})
 //    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
+    @PreAuthorize("hasAuthority('ROLE_NORMAL_MEMBER') and authentication.name == #userId.toString()")
     @GetMapping("/users/{userId}/orders")
     public ResponseEntity<Page<Order>> getOrders(
 
@@ -58,8 +60,9 @@ public class OrderController {
 
     }
 
-    @CrossOrigin(origins = {"https://eric8409.github.io"})
+//   @CrossOrigin(origins = {"https://eric8409.github.io"})
 //    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
+    @PreAuthorize("hasAuthority('ROLE_NORMAL_MEMBER') and authentication.name == #userId.toString()")
     @PostMapping("/users/{userId}/orders")
     public ResponseEntity<?> createOrder(@PathVariable Integer userId,
                                          @RequestBody @Valid CreateOrderRequest createOrderRequest) {
@@ -72,9 +75,9 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
 
-       @CrossOrigin(origins = {"https://eric8409.github.io"})
+//       @CrossOrigin(origins = {"https://eric8409.github.io"})
 //    @CrossOrigin(origins = {"https://eric8409.github.io", "http://localhost:4200"})
-    @GetMapping("/orders")
+    @GetMapping("totalqty/orders")
     public ResponseEntity<List<Totalqty>> getTotalQuantity() {
 
         List<Totalqty> totalqtyList  =  orderService.getTotalQuantity();
@@ -87,6 +90,36 @@ public class OrderController {
     }
 
 
+    @GetMapping("/admin/orders")
+    public ResponseEntity<Page<Order>> getAllOrders(
+
+            @RequestParam(defaultValue = "10") @Max(1000) @Min(0) Integer limit,
+            @RequestParam(defaultValue = "0") @Min(0) Integer offset
+
+    ) {
+
+        OrderQueryParams orderQueryParams = new OrderQueryParams();
+
+        orderQueryParams.setLimit(limit);
+        orderQueryParams.setOffset(offset);
+
+        //取得 order list
+        List<Order> orderList = orderService.getOrders(orderQueryParams);
+
+        //取得 count 總數
+        Integer count = orderService.countOrder(orderQueryParams);
+
+        //分頁
+        Page<Order> page = new Page<>();
+        page.setLimit(limit);
+        page.setOffset(offset);
+        page.setTotal(count);
+        page.setResults(orderList);
+
+
+        return  ResponseEntity.status(HttpStatus.OK).body(page);
+
+    }
 
 
 
