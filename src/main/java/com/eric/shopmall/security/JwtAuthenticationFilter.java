@@ -2,6 +2,7 @@ package com.eric.shopmall.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,11 +46,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String userId = null;
         String jwt = null;
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            // 方法呼叫從 getUsernameFromToken 改為 getUserIdFromToken
-            userId = jwtTokenUtil.getUserIdFromToken(jwt);
+
+        // --- 核心變更：從 Cookie 中獲取 Token ---
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) { // 尋找名為 "accessToken" 的 Cookie
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
         }
+        // ------------------------------------
+
+        // 驗證邏輯保持不變，使用從 Cookie 中獲取的 jwt 變數
+        if (jwt != null) {
+            try {
+                // 方法呼叫從 getUsernameFromToken 改為 getUserIdFromToken
+                userId = jwtTokenUtil.getUserIdFromToken(jwt);
+            } catch (Exception e) {
+                logger.error("Error parsing JWT from cookie", e);
+            }
+        }
+
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
