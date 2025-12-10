@@ -11,7 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.util.AntPathMatcher; // 導入 AntPathMatcher
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,11 +25,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final MyUserDetailsService myUserDetailsService;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    // 產生 jwt簽章
+    // 這些 URL 應該被完全忽略過濾器
     private static final List<String> SKIPPED_URLS = Arrays.asList(
             "/users/register",
-            "/users/login"
-
+            "/users/login",
+            "/users/logout" // *** 必須包含登出 URL ***
     );
 
     public JwtAuthenticationFilter(JwtTokenUtil jwtTokenUtil, MyUserDetailsService myUserDetailsService) {
@@ -36,22 +37,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.myUserDetailsService = myUserDetailsService;
     }
 
+    // *** [重要] 實現 shouldNotFilter 方法 ***
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return SKIPPED_URLS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String authorizationHeader = request.getHeader("Authorization");
-
-        // 變數名稱從 username 改為 userId
         String userId = null;
         String jwt = null;
 
-
-        // --- 核心變更：從 Cookie 中獲取 Token ---
+        // --- 從 Cookie 中獲取 Token ---
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) { // 尋找名為 "accessToken" 的 Cookie
+                if ("accessToken".equals(cookie.getName())) {
                     jwt = cookie.getValue();
                     break;
                 }
@@ -59,20 +63,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         // ------------------------------------
 
-        // 驗證邏輯保持不變，使用從 Cookie 中獲取的 jwt 變數
-        if (jwt != null) {
+        if (StringUtils.hasText(jwt)) {
             try {
-                // 方法呼叫從 getUsernameFromToken 改為 getUserIdFromToken
                 userId = jwtTokenUtil.getUserIdFromToken(jwt);
             } catch (Exception e) {
-                logger.error("Error parsing JWT from cookie", e);
+                logger.error("Error parsing JWT from cookie or JWT expired/invalid", e);
             }
         }
 
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            // 呼叫專門的 loadUserByUserId 方法
+            // 使用 MyUserDetailsService 中的 loadUserByUserId 方法
             UserDetails userDetails = this.myUserDetailsService.loadUserByUserId(userId);
 
             if (jwtTokenUtil.validateToken(jwt, userDetails)) {
@@ -84,11 +85,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getRequestURI();
-        return SKIPPED_URLS.stream().anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 }

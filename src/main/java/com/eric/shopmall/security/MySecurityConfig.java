@@ -57,7 +57,8 @@ public class MySecurityConfig {
 
 
                         // 帳號功能 產生jwt簽章
-                        .requestMatchers("/users/register", "/users/login").permitAll()
+                        .requestMatchers("/users/register", "/users/login", "/users/logout").permitAll()
+                        .requestMatchers("/users/status").authenticated()
 
 
                         // 商品功能需要特定角色，使用jwt簽章

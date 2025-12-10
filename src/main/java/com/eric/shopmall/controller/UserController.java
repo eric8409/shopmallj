@@ -13,6 +13,8 @@ import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.core.env.Environment;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,7 +22,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import jakarta.validation.Valid;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -76,25 +80,15 @@ public class UserController {
 
         // --- 設定 HttpOnly Cookie ---
         Cookie cookie = new Cookie("accessToken", jwtToken);
-        cookie.setAttribute("HttpOnly","true");       // JS 無法讀取此 Cookie
         cookie.setPath("/");            // 全站路徑可用
         cookie.setMaxAge(7 * 24 * 60 * 60); // 設定 Cookie 過期時間
-        cookie.setAttribute("SameSite", "None");
-        cookie.setSecure(true);
-//        cookie.setAttribute("SameSite", "Lax");    // 防範 CSRF 攻擊
+        cookie.setAttribute("HttpOnly","true");       // JS 無法讀取此 Cookie
+//        cookie.setAttribute("SameSite", "None");
+//        cookie.setSecure(true);
 
-
-        // 根據環境動態設定 Secure 旗標
-        // 確保本地 HTTP 開發方便，正式 HTTPS 環境安全
-//        if (environment.acceptsProfiles("prod")) {
-//            cookie.setSecure(true);
-//        } else {
-//            cookie.setSecure(false);
-//        }
 
         response.addCookie(cookie); // 將 Cookie 添加到 HTTP 回應中
         // --------------------------
-
 
         // DTO 只包含非敏感資訊
         UserLoginResponse loginResponse = new UserLoginResponse(user.getUser_id(), user.getEmail());
@@ -103,6 +97,58 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
 
     }
+
+    @PostMapping("/users/logout")
+    public ResponseEntity<String> logout(HttpServletResponse response) {
+        // 建立一個同名但 MaxAge 設為 0 的 Cookie
+        Cookie cookie = new Cookie("accessToken", null); // 值設為 null
+        cookie.setPath("/");            // 必須與登入時設置的路徑一致
+        cookie.setMaxAge(0);            // 立即過期
+        cookie.setAttribute("HttpOnly", "true");
+        cookie.setAttribute("SameSite", "None");
+        cookie.setSecure(true);
+
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok("已成功登出並清除 Cookie");
+    }
+
+
+    @GetMapping("/users/status")
+    public ResponseEntity<?> checkStatus() {
+        // 從 Spring Security 上下文中獲取當前認證訊息
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 檢查使用者是否已經過認證 (通常由 JWT Filter 負責設置)
+        if (authentication != null && authentication.isAuthenticated() &&
+                !"anonymousUser".equals(authentication.getPrincipal())) {
+
+            // authentication.getName() 通常包含您的 User ID (根據您 generateToken 的方式)
+            String userIdStr = authentication.getName();
+
+            // 查詢使用者詳細資料
+            User user = userService.getUserById(Integer.parseInt(userIdStr));
+
+            if(user != null) {
+                // 回傳前端需要的 JSON 資訊
+                Map<String, Object> response = new HashMap<>();
+                response.put("userId", user.getUser_id());
+                response.put("email", user.getEmail());
+                response.put("isLoggedIn", true);
+
+                // 獲取角色並加入回應 (可選)
+                List<Role> roles = userDao.getRolesByUserId(user.getUser_id());
+                List<String> roleNames = roles.stream().map(Role::getRoleName).collect(Collectors.toList());
+                response.put("roles", roleNames);
+
+                return ResponseEntity.ok(response);
+            }
+        }
+
+        // 如果未認證，返回 401 Unauthorized
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+    }
+
 
 
 }

@@ -19,61 +19,46 @@ import java.util.Map;
 
 @Component
 public class JwtTokenUtil {
-
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
-
     @Value("${app.jwt.secret}")
     private String secretString;
-
     @Value("${app.jwt.expiration-time}")
     private long EXPIRATION_TIME;
-
     private Key secretKey;
 
     @PostConstruct
     public void init() {
-        logger.info("DEBUG JWT: Loaded secretString length: {}", secretString.length());
         try {
             byte[] keyBytes = Decoders.BASE64.decode(secretString);
             this.secretKey = Keys.hmacShaKeyFor(keyBytes);
-            logger.info("DEBUG JWT: Successfully initialized secretKey (Hashcode: {})", secretKey.hashCode());
         } catch (IllegalArgumentException e) {
-            logger.error("ERROR JWT: Failed to decode JWT secret string. Check if it is a valid Base64 string.", e);
             throw new RuntimeException("Invalid JWT secret configuration", e);
         }
     }
 
-    /**
-     * 生成 Token，使用 userId 作為 Subject
-     */
     public String generateToken(String userId, List<String> roles) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", roles);
-
-        logger.debug("DEBUG JWT: Generating token using secretKey (Hashcode: {})", secretKey.hashCode());
-
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userId) // 設定 userId 為 Subject
+                .setSubject(userId)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(secretKey) // 使用更現代的 API 寫法
+                .signWith(secretKey)
                 .compact();
     }
 
-    /**
-     * 從 Token 中獲取使用者 ID
-     */
     public String getUserIdFromToken(String token) {
         return extractAllClaims(token).getSubject();
     }
 
-    /**
-     * 驗證 Token 是否有效，比對 userId
-     */
+    // 從 Token 中獲取角色列表
+    public List<String> getRolesFromToken(String token) {
+        return (List<String>) extractAllClaims(token).get("roles");
+    }
+
     public boolean validateToken(String token, UserDetails userDetails) {
         final String userId = getUserIdFromToken(token);
-        // 這裡比對的是 userDetails.getUsername() (其實存的是 userId)
         return (userId.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
@@ -82,7 +67,6 @@ public class JwtTokenUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        logger.debug("DEBUG JWT: Extracting claims using secretKey (Hashcode: {})", secretKey.hashCode());
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
