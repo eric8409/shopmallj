@@ -83,8 +83,8 @@ public class UserController {
         cookie.setPath("/");            // 全站路徑可用
         cookie.setMaxAge(7 * 24 * 60 * 60); // 設定 Cookie 過期時間
         cookie.setAttribute("HttpOnly","true");       // JS 無法讀取此 Cookie
-//        cookie.setAttribute("SameSite", "None");
-//        cookie.setSecure(true);
+        cookie.setAttribute("SameSite", "None");
+        cookie.setSecure(true);
 
 
         response.addCookie(cookie); // 將 Cookie 添加到 HTTP 回應中
