@@ -53,6 +53,10 @@ public class MySecurityConfig {
 
                         // 允許所有 OPTIONS 請求，預請求解決 post保護問題
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // 允許訪問 WebSocket 端點
+                        .requestMatchers("/ws/**").permitAll()
+                         // 各國匯率
+                        .requestMatchers("/api/currency/**").permitAll()
 
 
 

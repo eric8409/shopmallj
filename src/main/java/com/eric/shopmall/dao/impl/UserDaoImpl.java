@@ -115,6 +115,18 @@ public class UserDaoImpl implements UserDao {
         namedParameterJdbcTemplate.update(sql, map);
     }
 
+    // *** 新增: 實現獲取所有使用者列表的方法 ***
+    @Override
+    public List<User> getAllUsers() {
+        // 查詢所有使用者，但**不**包含敏感的 password 欄位
+        String sql = "SELECT user_id, email, null as password, created_date, last_modified_date FROM user";
+
+        // 注意：這裡依賴 UserRowMapper 能正確處理 password 為 null 的情況（例如，在 setter 中檢查 null）
+        List<User> userList = namedParameterJdbcTemplate.query(sql, new UserRowMapper());
+
+        return userList;
+    }
+
 
 }
 

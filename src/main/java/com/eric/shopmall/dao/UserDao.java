@@ -20,6 +20,6 @@ public interface UserDao {
     // 預設權限
     void addRoleForUserId(Integer userId, Role role);
 
-
+    List<User> getAllUsers();
 
 }

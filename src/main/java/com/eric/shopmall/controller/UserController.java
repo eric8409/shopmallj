@@ -9,6 +9,7 @@ import com.eric.shopmall.model.User;
 import com.eric.shopmall.security.JwtTokenUtil;
 import com.eric.shopmall.service.RoleService;
 import com.eric.shopmall.service.UserService;
+import com.eric.shopmall.websocket.WebSocketStatusHandler;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.core.env.Environment;
 import jakarta.servlet.http.HttpServletResponse;
+
 
 
 import jakarta.validation.Valid;
@@ -83,8 +85,8 @@ public class UserController {
         cookie.setPath("/");            // 全站路徑可用
         cookie.setMaxAge(7 * 24 * 60 * 60); // 設定 Cookie 過期時間
         cookie.setAttribute("HttpOnly","true");       // JS 無法讀取此 Cookie
-//        cookie.setAttribute("SameSite", "None");
-//        cookie.setSecure(true);
+        cookie.setAttribute("SameSite", "None");
+        cookie.setSecure(true);
 
 
         response.addCookie(cookie); // 將 Cookie 添加到 HTTP 回應中
@@ -105,8 +107,8 @@ public class UserController {
         cookie.setPath("/");            // 必須與登入時設置的路徑一致
         cookie.setMaxAge(0);            // 立即過期
         cookie.setAttribute("HttpOnly", "true");
-        cookie.setAttribute("SameSite", "None");
-        cookie.setSecure(true);
+//        cookie.setAttribute("SameSite", "None");
+//        cookie.setSecure(true);
 
         response.addCookie(cookie);
 
@@ -136,6 +138,11 @@ public class UserController {
                 response.put("email", user.getEmail());
                 response.put("isLoggedIn", true);
 
+                // --- 結合即時在線狀態 ---
+                boolean isOnline = WebSocketStatusHandler.onlineUsers.containsValue(userIdStr);
+                response.put("isOnline", isOnline);
+                // ------------------------
+
                 // 獲取角色並加入回應 (可選)
                 List<Role> roles = userDao.getRolesByUserId(user.getUser_id());
                 List<String> roleNames = roles.stream().map(Role::getRoleName).collect(Collectors.toList());
@@ -149,6 +156,26 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
     }
 
+    // 新增 API: 獲取所有使用者狀態列表供前端表格使用
+    @GetMapping("/users/list-status")
+    public ResponseEntity<List<Map<String, Object>>> listUsersWithStatus() {
+        // 確保您有 getAllUsers() 方法
+        List<User> userList = userDao.getAllUsers();
+        List<Map<String, Object>> results = userList.stream().map(user -> {
+            Map<String, Object> userStatus = new HashMap<>();
+            userStatus.put("userId", user.getUser_id());
+            userStatus.put("email", user.getEmail());
+            boolean isOnline = WebSocketStatusHandler.onlineUsers.containsValue(String.valueOf(user.getUser_id()));
+            userStatus.put("isOnline", isOnline);
+            return userStatus;
+        }).collect(Collectors.toList());
+        return ResponseEntity.ok(results);
+    }
+
 
 
 }
+
+
+
+

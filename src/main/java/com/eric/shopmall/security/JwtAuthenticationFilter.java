@@ -29,7 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final List<String> SKIPPED_URLS = Arrays.asList(
             "/users/register",
             "/users/login",
-            "/users/logout" // *** 必須包含登出 URL ***
+            "/users/logout",
+            "/api/currency/**"  // 使用通配符包含 currency 相關 API
     );
 
     public JwtAuthenticationFilter(JwtTokenUtil jwtTokenUtil, MyUserDetailsService myUserDetailsService) {
@@ -86,4 +87,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
+
+    // *** 新增方法：從 Cookie 或 Authorization Header 中提取 JWT ***
+    private String extractTokenFromRequest(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        }
+        return null;
+    }
+
+
 }
