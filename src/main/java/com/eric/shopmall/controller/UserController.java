@@ -107,8 +107,8 @@ public class UserController {
         cookie.setPath("/");            // 必須與登入時設置的路徑一致
         cookie.setMaxAge(0);            // 立即過期
         cookie.setAttribute("HttpOnly", "true");
-//        cookie.setAttribute("SameSite", "None");
-//        cookie.setSecure(true);
+        cookie.setAttribute("SameSite", "None");
+        cookie.setSecure(true);
 
         response.addCookie(cookie);
 
